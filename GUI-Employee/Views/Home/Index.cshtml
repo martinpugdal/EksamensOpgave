@@ -1,0 +1,25 @@
+﻿@{
+    @model List<DTO.Models.Employee>
+    ViewData["Title"] = "Medarbejdere (" + Model.Count + ")";
+}
+
+<div class="container mt-4">
+    <h2 class="text-center mb-4">Vælg en medarbejder</h2>
+    <div class="row d-flex justify-content-center">
+        @foreach (DTO.Models.Employee emp in Model)
+        {
+            <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-3">
+                <div class="card shadow-sm">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">@emp.Name</h5>
+                        @using (Html.BeginForm("Index", "Employee", FormMethod.Post))
+                        {
+                            @Html.Hidden("employeeId", emp.Id)
+                            <button type="submit" class="btn btn-success mt-3">Log ind som @emp.Name</button>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

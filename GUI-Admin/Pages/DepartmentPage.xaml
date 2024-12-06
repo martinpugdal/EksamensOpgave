@@ -1,0 +1,80 @@
+﻿<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:GUI_Admin.ViewModels"
+             x:Class="GUI_Admin.Pages.DepartmentPage"
+             Title="{Binding Department.Name, StringFormat='Oversigt for afdelingen: {0}'}">
+
+    <ContentPage.BindingContext>
+        <vm:DepartmentViewModel/>
+    </ContentPage.BindingContext>
+
+    <ScrollView>
+        <StackLayout Padding="50,10,50,0">
+
+            <!-- Grid layout for employees and cases -->
+            <Grid ColumnDefinitions="*,*" RowDefinitions="Auto" Margin="0,0,0,0">
+
+                <!-- Employee section -->
+                <VerticalStackLayout Grid.Column="0" Margin="20">
+                    <Label Text="Medarbejdere" FontSize="Medium" Margin="0,0,0,10" />
+                    <Frame CornerRadius="10" HasShadow="True" BackgroundColor="Transparent">
+                        <ScrollView HeightRequest="230">
+                            <CollectionView ItemsSource="{Binding EmployeeList}" SelectionMode="Single" SelectedItem="{Binding SelectedEmployee}">
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackLayout>
+                                            <Label Text="{Binding Name}" FontSize="Medium" />
+                                            <Label Text="{Binding TotalHours, StringFormat='Samlede timer: {0}'}" FontSize="Small" />
+                                        </StackLayout>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+                        </ScrollView>
+                    </Frame>
+
+                    <!-- Time registration filters -->
+                    <Label Text="Vis timeregistreringer" FontSize="Medium" Margin="0,10,0,0" />
+                    <Grid ColumnDefinitions="*,*,*">
+                        <Button Text="Uge" Command="{Binding ShowWeeklyTimeCommand}" Grid.Column="0" Margin="15" />
+                        <Button Text="Måned" Command="{Binding ShowMonthlyTimeCommand}" Grid.Column="1" Margin="15" />
+                        <Button Text="Total" Command="{Binding ShowTotalTimeCommand}" Grid.Column="2" Margin="15" />
+                    </Grid>
+                    <!-- Current filter label -->
+                    <Label Text="{Binding CurrentFilter, StringFormat='Filter: {0}'}" FontSize="Small" />
+
+                    <!-- Show Employee Details Button -->
+                    <Button Text="Vis medarbejder detaljer"
+                            Command="{Binding ShowMoreAboutEmployeeCommand}"
+                            CommandParameter="{Binding SelectedEmployee}"
+                            IsEnabled="{Binding IsEmployeeSelected}"
+                            Margin="0,20,0,0" />
+                </VerticalStackLayout>
+
+                <!-- Case section -->
+                <VerticalStackLayout Grid.Column="1" Margin="20">
+                    <Label Text="Opret ny sag" FontSize="Medium" Margin="0,0,0,10" />
+                    <Entry Placeholder="Sagens titel" Text="{Binding NewCase.Title}" />
+                    <Editor Placeholder="Sagens beskrivelse" Text="{Binding NewCase.Description}" HeightRequest="100" />
+                    <Button Text="Opret sag" Command="{Binding CreateCaseCommand}" WidthRequest="150" HorizontalOptions="Start" Margin="0,20,0,0" />
+
+                    <Label Text="Sager" FontSize="Medium" Margin="0,60,0,10" />
+                    <Frame CornerRadius="10" HasShadow="True" BackgroundColor="Transparent">
+                        <ScrollView HeightRequest="230">
+                            <CollectionView ItemsSource="{Binding CaseList}" SelectionMode="None">
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackLayout>
+                                            <Label Text="{Binding Title}" FontAttributes="Bold" FontSize="Medium" />
+                                            <Label Text="{Binding Description}" FontSize="Small" />
+                                        </StackLayout>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+                        </ScrollView>
+                    </Frame>
+                </VerticalStackLayout>
+
+            </Grid>
+        </StackLayout>
+    </ScrollView>
+</ContentPage>

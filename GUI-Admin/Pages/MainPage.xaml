@@ -1,0 +1,86 @@
+﻿<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:GUI_Admin.ViewModels"
+    x:Class="GUI_Admin.Pages.MainPage"
+    Title="Adminstration dashboard"
+>
+
+    <ContentPage.BindingContext>
+        <vm:MainViewModel />
+    </ContentPage.BindingContext>
+
+    <ScrollView>
+        <StackLayout Padding="50,10,50,0">
+
+            <Grid ColumnDefinitions="*,*" RowDefinitions="Auto" Margin="0,0,0,0">
+                <!-- This grid is for employee creation and display -->
+                <VerticalStackLayout Grid.Column="0" Margin="20">
+                    <!-- Create the employee here -->
+                    <Label Text="Opret ny medarbejder" FontSize="Medium" Margin="0,0,0,10" />
+                    <Entry Placeholder="Medarbejderens navn" Text="{Binding NewEmployee.Name}" />
+                    <Entry Placeholder="Medarbejderens CPR-nr" Text="{Binding NewEmployee.Cpr}" />
+                    <Button Text="Opret" WidthRequest="150" HorizontalOptions="Start" Margin="0,20,0,0" Command="{Binding CreateEmployeeCommand}" />
+
+                    <!-- Display all employees -->
+                    <Label Text="Medarbejdere" FontSize="Medium" Margin="0,60,0,10" />
+                    <Frame CornerRadius="10" 
+                           HasShadow="True"
+                           BackgroundColor="Transparent">
+                        <ScrollView HeightRequest="230">
+                            <CollectionView 
+                                ItemsSource="{Binding CurrentEmployeeList}" 
+                                SelectionMode="Single" 
+                                SelectedItem="{Binding SelectedEmployee}"
+                            >
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackLayout>
+                                            <Label Text="{Binding Name}" />
+                                        </StackLayout>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+                        </ScrollView>
+                    </Frame>
+                </VerticalStackLayout>
+
+                <!-- This grid is for department creation and dropbox list for selection of department -->
+                <VerticalStackLayout Grid.Column="1" Margin="20">
+                    <!-- Create the department here -->
+                    <Label Text="Opret ny afdeling" FontSize="Medium" Margin="0,0,0,10" />
+                    <Entry Placeholder="Afdelingens navn" Text="{Binding NewDepartmentName}" />
+                    <Button Text="Opret" WidthRequest="150" HorizontalOptions="Start" Margin="0,20,0,0" Command="{Binding CreateDepartmentCommand}" />
+
+                    <!-- Display all departments -->
+                    <Label Text="Afdelinger" FontSize="Medium" Margin="0,105,0,10" />
+                        <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,0">
+                            <Picker
+                                Grid.Column="0"
+                                ItemsSource="{Binding DepartmentList}"
+                                ItemDisplayBinding="{Binding Name}"
+                                SelectedItem="{Binding SelectedDepartment}" 
+                             />
+
+                            <Button 
+                                Grid.Column="1"
+                                Text="Vis afdeling" 
+                                WidthRequest="150" 
+                                HorizontalOptions="Center" 
+                                Margin="10,0,0,0" 
+                                IsEnabled="{Binding IsDepartmentSelected}" 
+                                Command="{Binding ShowMoreForSelectedDepartmentCommand}" 
+                            />
+                        </Grid>
+
+
+                        <!-- Add an employee to the selected department -->
+                        <VerticalStackLayout IsVisible="{Binding IsDepartmentAndEmployeeSelected}" >
+                            <Label Text="{Binding SelectedEmployee.Name, StringFormat='Tilføj {0} til den valgte afdeling'}" HorizontalOptions="CenterAndExpand" FontSize="Medium" Margin="0,20,0,10" />
+                            <Button Text="Tilføj" WidthRequest="150" HorizontalOptions="CenterAndExpand" Margin="0,20,0,0" Command="{Binding AddEmployeeToDepartmentCommand}" />
+                        </VerticalStackLayout>
+                </VerticalStackLayout>
+            </Grid>
+        </StackLayout>
+    </ScrollView>
+</ContentPage>

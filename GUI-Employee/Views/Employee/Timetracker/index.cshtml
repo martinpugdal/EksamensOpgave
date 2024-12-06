@@ -1,0 +1,162 @@
+﻿
+@{
+    @using System.Globalization
+
+    @model EmployeeAndDepartmentModel
+    ViewData["Title"] = "Tidsregistreringer" + " - " + Model.Employee.Name;
+    var totalHours = 37;
+    var rawProgress = (Model.Employee.TotalHours / totalHours) * 100;
+    var progress = Math.Min(rawProgress, 100);
+
+    @functions{
+        int GetIso8601WeekOfYear(DateTime time)
+        {
+            DayOfWeek day = CultureInfo.InvariantCulture.Calendar.GetDayOfWeek(time);
+            if (day >= DayOfWeek.Monday && day <= DayOfWeek.Wednesday)
+            {
+                time = time.AddDays(3);
+            }
+            return CultureInfo.InvariantCulture.Calendar.GetWeekOfYear(time, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday);
+        }
+    }
+}
+
+<div class="mt-5 pb-5">
+    <div class="col-md-6 offset-md-3">
+        <h5>Timer registreret i alt for uge @GetIso8601WeekOfYear(DateTime.Now): @Math.Round(Model.Employee.TotalHours, 2) ud af @totalHours</h5>
+        <div class="progress">
+            <div 
+                class="progress-bar progress-bar-striped @if(rawProgress >= 100) { <text>bg-success</text> } else if(rawProgress >= 50) { <text>bg-info</text> } else { <text>bg-warning</text> }" 
+                role="progressbar"
+                    style="width: @progress%;">@Math.Round(rawProgress, 1)%
+            </div>
+        </div>
+    </div>
+</div>
+
+<div>
+    <h3>Dine tidsregistreringer</h3>
+    @if (Model.EmployeeTimetrackers.Count > 0)
+    {
+        <table class="table table-striped text-center">
+            <thead>
+                <tr>
+                    <th>Starttid</th>
+                    <th>Sluttid</th>
+                    <th>Varighed (dd:hh:mm)</th>
+                    <th>Case</th>
+                    <th>Handling</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var tracker in Model.EmployeeTimetrackers)
+                {
+                    <tr>
+                        <td>@tracker.DateTimeStart.ToString("g")</td>
+                        <td>
+                            @if (tracker.DateTimeEnd != null)
+                            {
+                                @tracker.DateTimeEnd?.ToString("g")
+                            }
+                            else
+                            {
+                                <em>Aktiv</em>
+                            }
+                        </td>
+                        <td>
+                            @if (tracker.DateTimeEnd != null)
+                            {
+                                var timeSpan = tracker.DateTimeEnd - tracker.DateTimeStart;
+                                @timeSpan?.ToString(@"dd\:hh\:mm")
+                            }
+                            else
+                            {
+                                <em>-</em>
+                            }
+                        </td>
+                        <td>
+                            @if (tracker.CaseId != null)
+                            {
+                                @Model.GetCase((int) tracker.CaseId).Title
+                            }
+                            else
+                            {
+                                @("Ingen case tilknyttet");
+                            }
+                        </td>
+                        <td>
+                            @if (tracker.DateTimeEnd == null)
+                            {
+                                @using (Html.BeginForm("Stop", "Timetracker", new { timetrackerId = tracker.Id, employeeId = Model.Employee.Id }, FormMethod.Post))
+                                {
+                                    <button class="btn btn-danger btn-sm" type="submit">Stop</button>
+                                }
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p>Ingen aktive tidsregistreringer.</p>
+    }
+</div>
+
+<div class="container mt-5">
+    <div class="row">
+        <!-- Start ny tidsregistrering -->
+        <div class="col-md-6 text-center">
+            <h3>Start ny tidsregistrering</h3>
+            @using (Html.BeginForm("Start", "Timetracker", new { employeeId = Model.Employee.Id, departmentId = Model.Department.Id }, FormMethod.Post))
+            {
+                <input type="hidden" id="shared-case-id-start" name="selectedCaseId" value="" />
+                <button class="btn btn-primary mt-3">Start ny tidsregistrering</button>
+            }
+        </div>
+
+        <!-- Opret ny tidsregistrering -->
+        <div class="col-md-6 text-center">
+            <h3>Opret ny tidsregistrering</h3>
+            @using (Html.BeginForm("Create", "Timetracker", new { employeeId = Model.Employee.Id, departmentId = Model.Department.Id }, FormMethod.Post))
+            {
+                <div class="form-group">
+                    <label for="start-datetime">Startdato og -tid:</label>
+                    <input type="datetime-local" id="start-datetime" name="startDateTime" class="form-control" required />
+                </div>
+                <div class="form-group mt-3">
+                    <label for="end-datetime">Slutdato og -tid (valgfri):</label>
+                    <input type="datetime-local" id="end-datetime" name="endDateTime" class="form-control" />
+                </div>
+                <input type="hidden" id="shared-case-id-create" name="selectedCaseId" value="" />
+                <button class="btn btn-success mt-3">Opret tidsregistrering</button>
+            }
+        </div>
+    </div>
+
+    <!-- Fælles Case Dropdown -->
+    <div class="row mt-4">
+        <div class="col-12 text-center">
+            <div class="form-group d-flex justify-content-center align-items-center">
+                <label for="shared-case-dropdown" class="me-2 mb-0">Vælg en case (valgfri):</label>
+                <select id="shared-case-dropdown" class="form-select" style="width: auto;">
+                    <option value="" selected>Ingen case valgt</option>
+                    @foreach (var caseItem in Model.Department.Cases)
+                    {
+                        <option value="@caseItem.Id">@caseItem.Title</option>
+                    }
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // JavaScript til at opdatere de skjulte felter baseret på valgt case
+    document.getElementById("shared-case-dropdown").addEventListener("change", function () {
+        var selectedCaseId = this.value;
+        document.getElementById("shared-case-id-start").value = selectedCaseId;
+        document.getElementById("shared-case-id-create").value = selectedCaseId;
+    });
+</script>

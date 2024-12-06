@@ -1,0 +1,35 @@
+﻿<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:GUI_Admin.ViewModels"
+             x:Class="GUI_Admin.Pages.EmployeePage"
+             Title="{Binding Employee.Name, StringFormat='Timeregistreringer for: {0}'}">
+
+    <ContentPage.BindingContext>
+        <vm:EmployeeViewModel/>
+    </ContentPage.BindingContext>
+
+    <ScrollView>
+        <StackLayout Padding="20">
+            <Label Text="{Binding Department.Name, StringFormat='Afdeling: {0}'}" FontSize="Large" Margin="0,0,0,10" />
+
+            <Label Text="Tidsregistreringer" FontSize="Medium" Margin="0,10,0,10" />
+            <Frame CornerRadius="10" HasShadow="True" BackgroundColor="Transparent">
+                <ScrollView>
+                    <CollectionView ItemsSource="{Binding Timetrackers}" SelectionMode="None">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Frame CornerRadius="10" Margin="0,5">
+                                    <StackLayout Padding="10">
+                                        <Label Text="{Binding DateTimeStart, StringFormat='Start dato: {0}'}" FontSize="Small" />
+                                        <Label Text="{Binding DateTimeEnd, TargetNullValue='Slut dato: ikke afsluttet', StringFormat='Slut dato: {0}'}" FontSize="Small" />
+                                        <Label Text="{Binding CaseId, TargetNullValue='Ingen case tilknyttet', StringFormat='Case nr {0}'}" FontSize="Small" />
+                                    </StackLayout>
+                                </Frame>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </ScrollView>
+            </Frame>
+        </StackLayout>
+    </ScrollView>
+</ContentPage>

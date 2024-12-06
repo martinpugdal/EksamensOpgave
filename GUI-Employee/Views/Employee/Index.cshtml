@@ -1,0 +1,26 @@
+﻿@{
+    @model DTO.Models.Employee
+    ViewData["Title"] = Model.Name + " - Medarbejder";
+}
+
+<div class="container mt-4">
+    <h2 class="text-center mb-4">@Model.Name</h2>
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            @using (Html.BeginForm("Timetracker", "Employee", FormMethod.Post))
+            {
+                @Html.Hidden("employeeId", Model.Id)
+                <div class="form-group mt-3">
+                    @Html.Label("Vælg afdeling")
+                    <select class="form-control" id="department" name="departmentId">
+                        @foreach (var department in Model.Departments)
+                        {
+                            <option value="@department.Id">@department.Name</option>
+                        }
+                    </select>
+                    <button type="submit" class="btn btn-primary mt-3">Gå til tidsregistrering</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
