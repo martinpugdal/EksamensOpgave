@@ -24,7 +24,7 @@
 		<ApplicationTitle>GUI_Admin</ApplicationTitle>
 
 		<!-- App Identifier -->
-		<ApplicationId>com.companyname.GUI_Admin</ApplicationId>
+		<ApplicationId>com.companyname.GUIAdmin</ApplicationId>
 
 		<!-- Versions -->
 		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
